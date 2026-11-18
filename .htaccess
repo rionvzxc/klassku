@@ -1,0 +1,26 @@
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    DirectorySlash Off
+    RewriteEngine On
+    RewriteRule ^storage(?:/|$) - [R=404,L,NC]
+    RewriteRule ^asset/.*\.(?:php[0-9]*|phtml|phar)(?:[./]|$) - [R=404,L,NC]
+    RewriteRule \.sql$ - [F,L,NC]
+    RewriteRule ^asset/ - [END]
+    RewriteRule ^ - [E=KLASSKU_REWRITE:1]
+    RewriteRule ^index\.php$ - [END]
+    RewriteRule ^ index.php [END]
+</IfModule>
+<IfModule !mod_rewrite.c>
+    FallbackResource /index.php
+    <If "%{REQUEST_URI} =~ m#^/storage(?:/|$)#i">
+        Require all denied
+    </If>
+    <FilesMatch "(?i)\.php$">
+        Require expr "%{REQUEST_FILENAME} == %{DOCUMENT_ROOT} . '/index.php'"
+    </FilesMatch>
+</IfModule>
+
+<FilesMatch "(?i)(?:^\.env(?:\..*)?|\.(?:sql|sqlite3?|db)(?:-(?:journal|shm|wal))?)$">
+    Require all denied
+</FilesMatch>
